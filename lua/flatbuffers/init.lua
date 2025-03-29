@@ -122,23 +122,22 @@ function M.setup()
   -- clear = false to preserve existing definitions
   local augroup = vim.api.nvim_create_augroup("FlatbuffersLSP", { clear = false })
 
-  -- Create the autocmd with the group last to ensure ordering
   vim.api.nvim_create_autocmd("LspAttach", {
     group = augroup,
     callback = function(args)
       local bufnr = args.buf
       local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-      -- Only handle clangd for C++ files
       if client and client.name == "clangd" and vim.bo[bufnr].filetype == "cpp" then
-        -- Use a timer to ensure this runs after other LspAttach handlers
+        -- Use schedule to ensure this runs after other LspAttach handlers
         vim.schedule(function()
+          -- Force override using buffer-local mapping with <buffer> flag
           vim.keymap.set("n", "gd", go_to_fbs_or_definition, {
             buffer = bufnr,
+            silent = true,
+            noremap = true,
             desc = "Go to FBS field definition",
-            replace = true, -- Force override existing mapping
           })
-          log("Configured FlatBuffers navigation for buffer %d", bufnr)
         end)
       end
     end,
