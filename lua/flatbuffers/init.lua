@@ -1,22 +1,29 @@
 local M = {}
 
-local DEBUG = false
-local LOG_LEVEL = DEBUG and vim.log.levels.DEBUG or vim.log.levels.INFO
+local OPTS = {
+  debug = true,
+  path_rules = {
+    generated_file_pattern = "_generated%.h$",
+    generated_path_pattern = "(.*)/%.cache/.*/bin/(.*)_generated%.h$",
+    fbs_substitution = nil,
+  },
+}
 
 local target_symbol = nil -- Internal variable for storing the target symbol
 
 local function log(message, ...)
-  if DEBUG then
-    vim.notify(("[FB] " .. message):format(...), LOG_LEVEL)
+  if OPTS.debug then
+    vim.notify(("[FB] " .. message):format(...), vim.log.levels.DEBUG)
   end
 end
 
 local function convert_generated_path_to_fbs(generated_path)
   local project_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
   local fbs_path = generated_path:gsub(
-    "(.*)/%.cache/bazel/.*/bin/(.*)_generated%.h$",
-    project_root and project_root .. "/%2.fbs" or "%1/971-Robot-Code/%2.fbs"
+    OPTS.path_rules.generated_path_pattern or "(.*)/%.cache/.*/bin/(.*)_generated%.h$",
+    OPTS.path_rules.fbs_substitution or (project_root and project_root .. "/%2.fbs" or "%1/971-Robot-Code/%2.fbs")
   )
+  log("Redirecting to %s from %s", fbs_path, generated_path)
 
   return vim.fn.resolve(fbs_path)
 end
@@ -34,7 +41,6 @@ local function find_symbol_in_fbs(symbol)
     local table_match = line:match(table_pattern)
     if table_match then
       current_table = table_match
-      log("Entering table: %s", current_table)
     end
 
     -- Look for field definition
@@ -65,7 +71,7 @@ function M.definition_handler(err, result, ctx, config)
     if uri then
       local file_path = vim.uri_to_fname(uri)
       log("Processing: %s", file_path)
-      if file_path:match("_generated%.h$") then
+      if file_path:match(OPTS.path_rules.generated_file_pattern or "_generated%.h$") then
         has_generated = true
         local fbs_path = convert_generated_path_to_fbs(file_path)
         if vim.fn.filereadable(fbs_path) == 1 then
@@ -121,7 +127,9 @@ local function go_to_fbs_or_definition()
   end)
 end
 
-function M.setup()
+function M.setup(opts)
+  OPTS = opts or OPTS
+
   -- clear = false to preserve existing definitions
   local augroup = vim.api.nvim_create_augroup("FlatbuffersLSP", { clear = false })
 
