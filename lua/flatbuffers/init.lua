@@ -12,8 +12,11 @@ local function log(message, ...)
 end
 
 local function convert_generated_path_to_fbs(generated_path)
-  local fbs_path =
-    generated_path:gsub("(.*)/%.cache/bazel/.*/bazel%-out/k8%-opt/bin/(.*)_generated%.h$", "%1/971-Robot-Code/%2.fbs")
+  local project_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+  local fbs_path = generated_path:gsub(
+    "(.*)/%.cache/bazel/.*/bazel%-out/k8%-opt/bin/(.*)_generated%.h$",
+    project_root and project_root .. "/%2.fbs" or "%1/971-Robot-Code/%2.fbs"
+  )
 
   return vim.fn.resolve(fbs_path)
 end
