@@ -1,7 +1,7 @@
 local M = {}
 
 local OPTS = {
-  debug = true,
+  debug = false,
   path_rules = {
     generated_file_pattern = "_generated%.h$",
     generated_path_pattern = "(.*)/%.cache/.*/bin/(.*)_generated%.h$",
