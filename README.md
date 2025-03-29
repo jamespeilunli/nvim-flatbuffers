@@ -2,7 +2,7 @@
 
 Neovim plugin that redirects "go to definition" from FlatBuffers-generated C++ headers to FlatBuffer schemas.
 
-Should work by default for the 971-Robot-Code Bazel codebase. To adapt for other codebases, change the configuration.
+Should work by default for the 971-Robot-Code Bazel codebase. To adapt for other codebases, change the [configuration](#Configuration).
 
 ## Requirements
 
@@ -49,7 +49,7 @@ require("flatbuffers").setup({
 
     -- Represents the full path of the fbs file; substituted from generated_path_pattern
     -- Please use capture groups, e.g. "%1/971-Robot-Code/%2.fbs"
-    fbs_substitution = nil, -- defaults to the root of the current git repository
+    fbs_substitution = nil, -- Defaults to the root of the current git repository
   },
 })
 ```
