@@ -2,7 +2,7 @@
 
 Neovim plugin that redirects "go to definition" from FlatBuffers-generated C++ headers to FlatBuffer schemas.
 
-Should work by default for the 971-Robot-Code Bazel codebase. To adapt for other codebases, change the [configuration](#Configuration).
+By default, it should work for the 971-Robot-Code Bazel C++ codebase. To adapt for other codebases, change the [configuration](#Configuration). It should support all FlatBuffer-compatible languages, but this is untested.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ return {
 
 ## Configuration
 
-Pass an object like this into `setup`. Default options are shown
+Pass an object like this into `setup`. Default configuration is shown.
 ```lua
 require("flatbuffers").setup({
   debug = false,
