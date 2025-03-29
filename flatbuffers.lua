@@ -122,23 +122,24 @@ local function go_to_fbs_or_definition()
 end
 
 function M.setup()
-	-- Create autocommand for LSP attachment
-	vim.api.nvim_create_autocmd("LspAttach", {
-		group = vim.api.nvim_create_augroup("FlatbuffersLSP", {}),
-		callback = function(args)
-			local bufnr = args.buf
-			local client = vim.lsp.get_client_by_id(args.data.client_id)
+	require("lspconfig").clangd.setup({
+		capabilities = require("lazyvim.util").lsp.capabilities,
+		on_attach = function(client, bufnr)
+			require("lazyvim.util").lsp.on_attach(client, bufnr)
 
-			-- Only handle clangd for C++ files
-			if client and client.name == "clangd" and vim.bo[bufnr].filetype == "cpp" then
+			if vim.bo[bufnr].filetype == "cpp" then
 				vim.keymap.set("n", "gd", go_to_fbs_or_definition, {
 					buffer = bufnr,
 					desc = "Go to FBS field definition",
 				})
-				log("Configured FlatBuffers navigation for buffer %d", bufnr)
+				log("Configured for buffer %d", bufnr)
 			end
 		end,
 	})
 end
 
-return M
+return {
+	"neovim/nvim-lspconfig",
+	event = "LspAttach",
+	config = M.setup,
+}
