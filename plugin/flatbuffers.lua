@@ -1,0 +1,1 @@
+require("flatbuffers").setup()
